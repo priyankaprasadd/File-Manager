@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="main p-10 min-w-screen text-white">
+        <h class="heading p-10">Create file</h>
+        <!-- <h1>Create file</h1> -->
+        <div class="form flex-col">
+            <form action="/create" method="post">
+                <input class="w-full px-4 py-2 h-15 rounded-xl mt-3 bg-zinc-800" type="text" placeholder="Title goes here" name="title">
+                <textarea class="w-full px-4 py-2 h-15 rounded-xl resize-none mt-3 bg-zinc-800" placeholder="Write context here" name="details"></textarea>
+                <button class="p-2 rounded-xl mt-3 bg-blue-800">Create file</button>
+            </form>
+        </div>
+        <% if(files.length>0){ %>
+            <form action="/search" method="get">
+                <input class="w-72 mt-10 px-4 py-2 rounded-md bg-zinc-800" placeholder="Search file" name="search"></input>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Search</button>
+            </form>
+        <% } %>
+        <div class="flex flex-wrap gap-3 mt-2 pt-5">
+            <% if(files.length>0){ %>
+                <% files.forEach(function(title_name){ %>
+                    <div class="p-4 w-72 rounded-xl bg-zinc-800">
+                        <h1 class="p-2"><%= title_name %></h1>
+                        <div class="flex justify-between gap-6">
+                            <a class="p-2 text-blue-400" href="/file/<%= title_name %>">Read more</a>
+                            <a class="p-2 text-zinc-400" href="/edit/<%= title_name %>">Edit</a>
+                            <a class="p-2 text-red-400" href="/delete/<%= title_name %>">Delete</a>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %> 
+                <h1>No file yet..</h1> 
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>
