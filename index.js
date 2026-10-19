@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const path = require('path');
 
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -69,4 +70,9 @@ app.get('/search', function(req,res){
     })
 })
 
+app.get('/download/:filename', function(req,res){
+    const filepath = path.join(__dirname, 'files', req.params.filename);
+    res.download(filepath);
+})
+ 
 app.listen(3001);

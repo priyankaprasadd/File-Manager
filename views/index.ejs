@@ -21,13 +21,15 @@
             <form action="/search" method="get">
                 <input class="w-72 mt-10 px-4 py-2 rounded-md bg-zinc-800" placeholder="Search file" name="search"></input>
                 <button class="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Search</button>
+                <button onclick="location.reload()" class="text-xl hover:text-blue-400">&#8635</button>
             </form>
         <% } %>
         <div class="flex flex-wrap gap-3 mt-2 pt-5">
             <% if(files.length>0){ %>
                 <% files.forEach(function(title_name){ %>
-                    <div class="p-4 w-72 rounded-xl bg-zinc-800">
+                    <div class="relative p-4 w-72 rounded-xl bg-zinc-800">
                         <h1 class="p-2"><%= title_name %></h1>
+                        <a class="absolute top-2 right-5 hover:text-blue-300" href="/download/<%= title_name %>">&#8681</a>
                         <div class="flex justify-between gap-6">
                             <a class="p-2 text-blue-400" href="/file/<%= title_name %>">Read more</a>
                             <a class="p-2 text-zinc-400" href="/edit/<%= title_name %>">Edit</a>
