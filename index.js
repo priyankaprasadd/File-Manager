@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
+const fileModel = require('./models/model');
 
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -15,14 +16,44 @@ app.get('/', function(req,res){
 })
 
 app.post('/create', function(req,res){
-    fs.writeFile(`./files/${req.body.title.split(' ').join('')}.txt`, req.body.details, function(err){
+    // fs.writeFile(`./files/${req.body.title.split(' ').join('')}.txt`, req.body.details, function(err){
+    //     if(err){
+    //         res.send("error occured");
+    //     }else{
+    //         res.redirect('/');
+    //     }
+    // });
+    const filename = `${req.body.title.split(' ').join('')}.txt`;
+    const details = req.body.details;
+    const category = req.body.category || "General";   //Logical OR operator
+
+    fs.writeFile(`./files/${filename}`, details, async function(err){
         if(err){
-            res.send("error occured");
-        }else{
+            return res.status(500).send("Error occured");
+        }
+        try{
+            await fileModel.create({
+                filename: filename,
+                description: details,
+                category: category
+            });
             res.redirect('/');
+        } catch(error){
+            console.error("MongoDB error", error);
+            res.status(500).send(`File created but metadata could not be saved, ${error}`);
         }
     });
 });
+
+app.get('/metadata', async (req,res)=>{
+    try{
+        const files = await fileModel.find();
+        res.json(files);
+    } catch(error){
+        console.error("Error fetching metadata:", error);
+        res.status(500).send("Error fetching metadata")
+    }
+})
 
 app.get('/file/:filename', function(req,res){
     fs.readFile(`./files/${req.params.filename}`, "utf-8", function(err, fileData){
