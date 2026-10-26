@@ -45,6 +45,21 @@ app.post('/create', function(req,res){
     });
 });
 
+//this route will help to set categories as general where it is empty ""
+app.get('/fix-categories', async function(req, res) {
+    try {
+        const result = await fileModel.updateMany(
+            { category: "" },
+            { $set: { category: "General" } }
+        );
+
+        res.send(`Updated ${result.modifiedCount} files.`);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(`Could not update categories., ${error}`);
+    }
+});
+
 app.get('/metadata', async (req,res)=>{
     try{
         const files = await fileModel.find();
