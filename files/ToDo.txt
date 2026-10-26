@@ -1,1 +1,0 @@
-I want that search files must appear here only (index page) and there should be one refresh icon

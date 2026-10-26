@@ -1,2 +1,1 @@
-How to add category to previous files that is created using node.js
-As metadata is not showing previous files
+I want that search files must appear here only (index page) and there should be one refresh icon

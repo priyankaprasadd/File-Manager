@@ -13,7 +13,13 @@
         <div class="form flex-col">
             <form action="/create" method="post">
                 <input class="w-full px-4 py-2 h-15 rounded-xl mt-3 bg-zinc-800" type="text" placeholder="Title goes here" name="title">
-                <input class="w-full px-4 py-2 rounded-xl mt-3 bg-zinc-800" type="text" placeholder="Category (e.g. College, Personal)" name="category">
+                <select name="category" class="w-full px-4 py-2 rounded-xl mt-3 bg-zinc-800 text-white">
+                    <option value="General">General</option>
+                    <option value="College">College</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Work">Work</option>
+                    <option value="Projects">Projects</option>
+                </select>
                 <textarea class="w-full px-4 py-2 h-15 rounded-xl resize-none mt-3 bg-zinc-800" placeholder="Write context here" name="details"></textarea>
                 <button class="p-2 rounded-xl mt-3 bg-blue-800">Create file</button>
             </form>
@@ -22,19 +28,40 @@
             <form action="/search" method="get">
                 <input class="w-72 mt-10 px-4 py-2 rounded-md bg-zinc-800" placeholder="Search file" name="search"></input>
                 <button class="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Search</button>
-                <button onclick="location.reload()" class="text-xl hover:text-blue-400">&#8635</button>
+                <a href="/" class="text-xl hover:text-blue-400">&#8635</a>
+            </form>
+            <form action="/filter-category" method="get" class="mt-4">
+                <select name="category" class="px-3 py-2 rounded-xl bg-zinc-800 text-white">
+                    <option value="All"<%= selectedCategory === "All" ? "selected" : "" %>>All Categories</option>
+                    <option value="General"<%= selectedCategory === "General" ? "selected" : "" %>>General</option>
+                    <option value="College"<%= selectedCategory === "College" ? "selected" : "" %>>College</option>
+                    <option value="Personal"<%= selectedCategory === "Personal" ? "selected" : "" %>>Personal</option>
+                    <option value="Work"<%= selectedCategory === "Work" ? "selected" : "" %>>Work</option>
+                    <option value="Projects"<%= selectedCategory === "Projects" ? "selected" : "" %>>Projects</option>
+                </select>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
+                    Filter
+                </button>
+                <a href="/" class="text-xl hover:text-blue-400">&#8635</a>
             </form>
         <% } %>
         <div class="flex flex-wrap gap-3 mt-2 pt-5">
             <% if(files.length>0){ %>
-                <% files.forEach(function(title_name){ %>
+                <% files.forEach(function(file){ %>
+                    <% const filename = typeof file === 'string'?file :file.filename; %>
+                    <!-- file - node.js,   file.filename - mongoDB -->
                     <div class="relative p-4 w-72 rounded-xl bg-zinc-800">
-                        <h1 class="p-2"><%= title_name %></h1>
-                        <a class="absolute top-2 right-5 hover:text-blue-300" href="/download/<%= title_name %>">&#8681</a>
+                        <h1 class="p-2"><%= filename %></h1>
+                        <% if (typeof file !== 'string') { %> 
+                            <p class="px-2 text-sm text-zinc-400"> 
+                                Category: <%= file.category || 'General' %> 
+                            </p> 
+                        <% } %>
+                        <a class="absolute top-2 right-5 hover:text-blue-300" href="/download/<%= encodeURIComponent(filename) %>">&#8681</a>
                         <div class="flex justify-between gap-6">
-                            <a class="p-2 text-blue-400" href="/file/<%= title_name %>">Read more</a>
-                            <a class="p-2 text-zinc-400" href="/edit/<%= title_name %>">Edit</a>
-                            <a class="p-2 text-red-400" href="/delete/<%= title_name %>">Delete</a>
+                            <a class="p-2 text-blue-400" href="/file/<%= encodeURIComponent(filename) %>">Read more</a>
+                            <a class="p-2 text-zinc-400" href="/edit/<%= encodeURIComponent(filename) %>">Edit</a>
+                            <a class="p-2 text-red-400" href="/delete/<%= encodeURIComponent(filename) %>">Delete</a>
                         </div>
                     </div>
                 <% }) %>

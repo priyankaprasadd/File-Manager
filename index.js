@@ -11,7 +11,7 @@ app.use(express.urlencoded({extended:true}));
 app.get('/', function(req,res){
     // res.send("Hello");
     fs.readdir('./files', function(err,files){
-        res.render("index", {files});
+        res.render("index", {files, selectedCategory:"All"});
     })
 })
 
@@ -32,32 +32,23 @@ app.post('/create', function(req,res){
             return res.status(500).send("Error occured");
         }
         try{
-            await fileModel.create({
-                filename: filename,
-                description: details,
-                category: category
-            });
+            await fileModel.findOneAndUpdate(
+                { filename: filename },
+                {
+                    description: details,
+                    category: category
+                },
+                {
+                    upsert: true,
+                    new: true
+                }
+            );
             res.redirect('/');
         } catch(error){
             console.error("MongoDB error", error);
             res.status(500).send(`File created but metadata could not be saved, ${error}`);
         }
     });
-});
-
-//this route will help to set categories as general where it is empty ""
-app.get('/fix-categories', async function(req, res) {
-    try {
-        const result = await fileModel.updateMany(
-            { category: "" },
-            { $set: { category: "General" } }
-        );
-
-        res.send(`Updated ${result.modifiedCount} files.`);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send(`Could not update categories., ${error}`);
-    }
 });
 
 app.get('/metadata', async (req,res)=>{
@@ -67,6 +58,26 @@ app.get('/metadata', async (req,res)=>{
     } catch(error){
         console.error("Error fetching metadata:", error);
         res.status(500).send("Error fetching metadata")
+    }
+})
+
+app.get('/filter-category', async(req,res)=>{
+    try{
+        const selectedCategory = req.query.category || "All";
+        const files = (selectedCategory === "All"
+            ? await fileModel.find()
+            : await fileModel.find({ category: selectedCategory })
+        ).filter(file =>
+            fs.existsSync(path.join(__dirname, 'files', file.filename))
+        );
+
+        res.render('index', {
+            files,
+            selectedCategory
+        });
+    } catch(error){
+        console.error("Error fetching categorised files",error)
+        res.status(500).send(`Error fetching categorised files, ${error}`)
     }
 })
 
@@ -112,7 +123,7 @@ app.get('/search', function(req,res){
         });
         // if(found) res.send(found);
         // else res.send("File not found");
-        res.render('index', {files: found})
+        res.render('index', {files: found, selectedCategory:"All"})
     })
 })
 
