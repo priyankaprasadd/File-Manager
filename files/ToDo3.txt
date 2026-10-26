@@ -1,1 +1,0 @@
-your edit and delete routes currently operate on the physical files only; they don't update or delete the corresponding MongoDB metadata. We can integrate that afterward.

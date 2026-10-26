@@ -1,2 +1,0 @@
-How to add category to previous files that is created using node.js
-As metadata is not showing previous files

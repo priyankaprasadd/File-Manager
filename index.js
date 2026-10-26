@@ -96,9 +96,18 @@ app.get('/edit/:filename', function(req,res){
 })
 
 app.post('/edit', function(req,res){
-    fs.rename(`./files/${req.body.previous}`, `./files/${req.body.new}.txt`, function(err){
-        if(err) return res.send("can't change name");
-        res.redirect('/');
+    fs.rename(`./files/${req.body.previous}`, `./files/${req.body.new}.txt`, async function(err){
+        if(err) return res.send(`can't change name, ${err}`);
+        try{
+            await fileModel.findOneAndUpdate(
+                {filename: req.body.previous},
+                {$set: {filename: `${req.body.new}.txt`}}
+            )
+            res.redirect('/');
+        } catch(error){
+            console.error(`MongoDB edition error: ${error}`)
+            res.status(500).send("File renamed, but MongoDB metadata could not be updated", error)
+        }
     })
 })
 
@@ -107,9 +116,16 @@ app.get('/delete/:filename', function(req,res){
 })
 
 app.post('/delete', function(req,res){
-    fs.unlink(`./files/${req.body.deletefile}`, function(err){
+    const filename = req.body.deletefile;
+    fs.unlink(`./files/${filename}`, async function(err){
         if(err) return res.send("Can't delete");
-        res.redirect('/');
+        try{
+            await fileModel.deleteMany({filename: filename});
+            res.redirect('/');
+        } catch (error){
+            console.error(`MongoDB deletion error: ${error}`)
+            res.status(500).send("File deleted but MongoDB metadata could not be deleted", error);
+        }
     })
 })
 
